@@ -1,0 +1,9 @@
+{
+  "name": "demo-scripts",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "@clack/prompts": "^0.10.1"
+  }
+}
