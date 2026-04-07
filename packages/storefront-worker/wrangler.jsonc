@@ -1,0 +1,70 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "storefront-worker",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-04-01",
+
+  "observability": {
+    "enabled": true
+  },
+
+  // Exposes the current version's tag, message, and timestamp at runtime.
+  // Used to populate the `version` field in all responses.
+  "version_metadata": {
+    "binding": "VERSION_METADATA"
+  },
+
+  "vars": {
+    "ENVIRONMENT": "production"
+  },
+
+  "kv_namespaces": [
+    {
+      "binding": "PRODUCTS_KV",
+      // Replace with real namespace ID after running:
+      // pnpm wrangler kv namespace create storefront-prod
+      "id": "<PROD_KV_NAMESPACE_ID>"
+    }
+  ],
+
+  "d1_databases": [
+    {
+      "binding": "INVENTORY_DB",
+      "database_name": "storefront-inventory-prod",
+      // Replace with real database ID after running:
+      // pnpm wrangler d1 create storefront-inventory-prod
+      "database_id": "<PROD_D1_DATABASE_ID>",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  // Preview environment config — overrides production bindings for `wrangler preview`.
+  // Requires prerelease wrangler: npm i https://pkg.pr.new/wrangler@12983
+  // Check https://github.com/cloudflare/workers-sdk/pull/12983 for merge status.
+  "previews": {
+    "vars": {
+      "ENVIRONMENT": "preview"
+    },
+    "kv_namespaces": [
+      {
+        "binding": "PRODUCTS_KV",
+        // Replace with real namespace ID after running:
+        // pnpm wrangler kv namespace create storefront-preview
+        "id": "<PREVIEW_KV_NAMESPACE_ID>"
+      }
+    ],
+    "d1_databases": [
+      {
+        "binding": "INVENTORY_DB",
+        "database_name": "storefront-inventory-preview",
+        // Replace with real database ID after running:
+        // pnpm wrangler d1 create storefront-inventory-preview
+        "database_id": "<PREVIEW_D1_DATABASE_ID>",
+        "migrations_dir": "migrations"
+      }
+    ],
+    "observability": {
+      "enabled": true
+    }
+  }
+}

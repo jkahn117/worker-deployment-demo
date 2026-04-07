@@ -1,0 +1,19 @@
+{
+  "name": "storefront-worker",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "types": "wrangler types"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "wrangler": "^4.80.0"
+  },
+  "dependencies": {
+    "hono": "^4.12.11",
+    "zod": "^4.3.6"
+  }
+}

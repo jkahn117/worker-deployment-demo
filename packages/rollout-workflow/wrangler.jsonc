@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "rollout-workflow",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "observability": {
+    "enabled": true
+  },
+
+  // The Workflow binding — lets the trigger Worker create and inspect instances.
+  "workflows": [
+    {
+      "name": "rollout-workflow",
+      "binding": "ROLLOUT_WORKFLOW",
+      "class_name": "RolloutWorkflow"
+    }
+  ],
+
+  // CLOUDFLARE_API_TOKEN is a runtime secret — not declared here.
+  // Set it before deploying:
+  //   pnpm wrangler secret put CLOUDFLARE_API_TOKEN
+  // Required permissions: Workers Scripts:Edit, Account Analytics:Read
+}

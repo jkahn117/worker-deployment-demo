@@ -1,0 +1,11 @@
+{
+  "name": "worker-deployment-demo",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "typecheck": "pnpm -r typecheck"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "sharp", "workerd"]
+  }
+}
