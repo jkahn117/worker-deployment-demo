@@ -59,12 +59,9 @@
         "database_name": "storefront-inventory-preview",
         // Replace with real database ID after running:
         // pnpm wrangler d1 create storefront-inventory-preview
-        "database_id": "<PREVIEW_D1_DATABASE_ID>",
+        "database_id": "443347c2-de53-4c3a-9e7f-e0f597a86748",
         "migrations_dir": "migrations",
       },
     ],
-    "observability": {
-      "enabled": true,
-    },
   },
 }
