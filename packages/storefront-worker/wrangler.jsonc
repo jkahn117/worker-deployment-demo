@@ -5,17 +5,17 @@
   "compatibility_date": "2026-04-01",
 
   "observability": {
-    "enabled": true
+    "enabled": true,
   },
 
   // Exposes the current version's tag, message, and timestamp at runtime.
   // Used to populate the `version` field in all responses.
   "version_metadata": {
-    "binding": "VERSION_METADATA"
+    "binding": "VERSION_METADATA",
   },
 
   "vars": {
-    "ENVIRONMENT": "production"
+    "ENVIRONMENT": "production",
   },
 
   "kv_namespaces": [
@@ -23,8 +23,8 @@
       "binding": "PRODUCTS_KV",
       // Replace with real namespace ID after running:
       // pnpm wrangler kv namespace create storefront-prod
-      "id": "82f56fb7a7fe4cd884b4c275161cbdab"
-    }
+      "id": "82f56fb7a7fe4cd884b4c275161cbdab",
+    },
   ],
 
   "d1_databases": [
@@ -34,24 +34,24 @@
       // Replace with real database ID after running:
       // pnpm wrangler d1 create storefront-inventory-prod
       "database_id": "3bea2b66-fe22-43ac-9fe5-32c1887a5d3d",
-      "migrations_dir": "migrations"
-    }
+      "migrations_dir": "migrations",
+    },
   ],
 
-  // Preview environment config — overrides production bindings for `wrangler preview`.
-  // Requires prerelease wrangler: npm i https://pkg.pr.new/wrangler@12983
-  // Check https://github.com/cloudflare/workers-sdk/pull/12983 for merge status.
+  // Preview environment config — used by `wrangler preview` to create isolated
+  // preview deployments with separate bindings from production.
+  // Requires wrangler 4.81.0+ (wrangler preview merged in PR #13375).
   "previews": {
     "vars": {
-      "ENVIRONMENT": "preview"
+      "ENVIRONMENT": "preview",
     },
     "kv_namespaces": [
       {
         "binding": "PRODUCTS_KV",
         // Replace with real namespace ID after running:
         // pnpm wrangler kv namespace create storefront-preview
-        "id": "c26379ed754440e8b807aebfe0fa32e1"
-      }
+        "id": "c26379ed754440e8b807aebfe0fa32e1",
+      },
     ],
     "d1_databases": [
       {
@@ -59,12 +59,12 @@
         "database_name": "storefront-inventory-preview",
         // Replace with real database ID after running:
         // pnpm wrangler d1 create storefront-inventory-preview
-        "database_id": "443347c2-de53-4c3a-9e7f-e0f597a86748",
-        "migrations_dir": "migrations"
-      }
+        "database_id": "<PREVIEW_D1_DATABASE_ID>",
+        "migrations_dir": "migrations",
+      },
     ],
     "observability": {
-      "enabled": true
-    }
-  }
+      "enabled": true,
+    },
+  },
 }

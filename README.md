@@ -111,6 +111,22 @@ bash scripts/teardown.sh
 
 *"How do I test a feature branch without touching production data?"*
 
+### Prerequisites for Stage 1
+
+**Worker Previews gate:** Open the dashboard and enable via browser console:
+```javascript
+localStorage.setItem("devPanel", "true");
+```
+Reload, click the ⚙️ gear icon bottom-left, search `worker-previews`, set to `true`.
+
+**Wrangler with `preview` command:** `wrangler preview` ships in wrangler
+4.82.0 ([PR #12983](https://github.com/cloudflare/workers-sdk/pull/12983)),
+currently pending release via [PR #13375](https://github.com/cloudflare/workers-sdk/pull/13375).
+It is already installed as a prerelease in `packages/storefront-worker/` via
+`pnpm install`. Once PR #13375 merges, switch to `npm i wrangler@latest`.
+
+### Running the demo
+
 ```bash
 cd packages/storefront-worker
 git checkout -b feature/v2-pricing
@@ -126,14 +142,15 @@ Compare the two environments side by side:
 # Production — v1 catalog, production prices
 curl -s $STOREFRONT_URL/products | jq '{version, environment, featured_collection}'
 
-# Preview — same code, isolated KV, staging prices
+# Preview — same code, isolated KV + D1, staging prices and stock counts
 curl -s https://feature-v2-pricing.storefront-worker.<sub>.workers.dev/products \
   | jq '{version, environment, featured_collection}'
 ```
 
-**What to point out:** `"environment": "preview"` and the lower prices confirm
-the preview is bound to its own KV namespace. Any writes to preview KV are
-completely isolated from production.
+**What to point out:** `"environment": "preview"`, the lower prices, and
+`"stock": 9999` confirm the preview is bound to entirely separate KV and D1
+instances. Any mutations to the preview data are completely isolated from
+production.
 
 Open the dashboard Previews tab to show the binding configuration:
 ```
