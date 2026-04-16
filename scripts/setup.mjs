@@ -11,7 +11,7 @@ import { resolve, dirname } from "path";
 import { tmpdir } from "os";
 import { fileURLToPath } from "url";
 import * as p from "@clack/prompts";
-import { getWranglerInvocation } from "./lib.mjs";
+import { getWranglerInvocation, resetWrangler } from "./lib.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..");
@@ -191,6 +191,9 @@ async function createD1Database(name, accountId, spin) {
 // ---------------------------------------------------------------------------
 async function main() {
   p.intro("Workers Deployment Demo — Setup");
+
+  // Always reset to placeholders first so setup can be rerun safely.
+  resetWrangler(WRANGLER_JSONC);
 
   // ── Preflight ──────────────────────────────────────────────────────────
   const preflight = p.spinner();

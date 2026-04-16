@@ -21,7 +21,7 @@
   "kv_namespaces": [
     {
       "binding": "PRODUCTS_KV",
-      // Replace with real namespace ID after running:
+      // Replace with real namespace ID after running setup:
       // pnpm wrangler kv namespace create storefront-prod
       "id": "<PROD_KV_NAMESPACE_ID>",
     },
@@ -31,7 +31,7 @@
     {
       "binding": "INVENTORY_DB",
       "database_name": "storefront-inventory-prod",
-      // Replace with real database ID after running:
+      // Replace with real database ID after running setup:
       // pnpm wrangler d1 create storefront-inventory-prod
       "database_id": "<PROD_D1_DATABASE_ID>",
       "migrations_dir": "migrations",
@@ -40,7 +40,6 @@
 
   // Preview environment config — used by `wrangler preview` to create isolated
   // preview deployments with separate bindings from production.
-  // Requires wrangler 4.81.0+ (wrangler preview merged in PR #13375).
   "previews": {
     "version_metadata": {
       "binding": "VERSION_METADATA",
@@ -52,7 +51,7 @@
     "kv_namespaces": [
       {
         "binding": "PRODUCTS_KV",
-        // Replace with real namespace ID after running:
+        // Replace with real namespace ID after running setup:
         // pnpm wrangler kv namespace create storefront-preview
         "id": "<PREVIEW_KV_NAMESPACE_ID>",
       },
@@ -61,7 +60,7 @@
       {
         "binding": "INVENTORY_DB",
         "database_name": "storefront-inventory-preview",
-        // Replace with real database ID after running:
+        // Replace with real database ID after running setup:
         // pnpm wrangler d1 create storefront-inventory-preview
         "database_id": "<PREVIEW_D1_DATABASE_ID>",
         "migrations_dir": "migrations",

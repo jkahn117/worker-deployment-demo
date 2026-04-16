@@ -69,7 +69,8 @@ if it has merged, use `npm i wrangler@latest` instead.
 ## Setup
 
 Everything is handled by a single script. It creates all cloud resources,
-seeds data, patches `wrangler.jsonc` with real IDs, and deploys both Workers.
+seeds data, resets `wrangler.jsonc` back to placeholders, fills in the real
+IDs, and deploys both Workers.
 
 ```bash
 bash scripts/setup.sh
@@ -84,12 +85,17 @@ The script will:
 6. Deploy `storefront-worker` at v1
 7. Prompt for your `CLOUDFLARE_API_TOKEN` secret and deploy `rollout-workflow`
 
-Resource IDs are automatically written back into
+Resource IDs are automatically written into
 `packages/storefront-worker/wrangler.jsonc` and echoed to the terminal.
+That file is committed with placeholders in git; setup fills it in locally and
+teardown restores the placeholders.
 
-**Requirements:** `node` (18+) and `wrangler` (authenticated) must be on your `PATH`.
+**Requirements:** `node` (18+) must be installed and Wrangler must already be
+authenticated. Verify with `pnpm exec wrangler whoami`.
 
 ### After setup
+
+Use the exact URLs printed by the setup script:
 
 ```bash
 export STOREFRONT_URL=https://storefront-worker.<sub>.workers.dev
@@ -97,9 +103,13 @@ export WORKFLOW_URL=https://rollout-workflow.<sub>.workers.dev
 export ACCOUNT_ID=<your-cloudflare-account-id>
 ```
 
+`STOREFRONT_URL` is the production service URL. The preview URLs created later
+in Stage 1 are separate URLs and should not replace this variable.
+
 ### Teardown
 
-To delete all provisioned resources and reset `wrangler.jsonc` for a fresh run:
+To delete all provisioned resources and restore `wrangler.jsonc` placeholders
+for a fresh run:
 
 ```bash
 bash scripts/teardown.sh
@@ -127,41 +137,107 @@ It is already installed as a prerelease in `packages/storefront-worker/` via
 
 ### Running the demo
 
+#### Step 1.1 — Confirm production first
+
+Action:
+
+```bash
+curl -s $STOREFRONT_URL/products | jq '{version, environment, featured_collection}'
+```
+
+Talking point:
+
+`$STOREFRONT_URL` is the production service URL created by `scripts/setup.sh`.
+This is the baseline users are currently hitting.
+
+#### Step 1.2 — Create a preview from the feature branch
+
+Action:
+
 ```bash
 cd packages/storefront-worker
 git checkout -b feature/v2-pricing
 
 # Create an isolated preview environment from this branch
 npx wrangler preview
-# → Preview URL: https://feature-v2-pricing.storefront-worker.<sub>.workers.dev
 ```
 
-Compare the two environments side by side:
+Wrangler prints two URLs:
+
+- `Preview:` stable preview alias for the branch or preview name
+- `Deployment:` immutable URL for that specific preview deployment
+
+Example:
+
+- Preview URL: `https://feature-v2-pricing-storefront-worker.<sub>.workers.dev`
+- Deployment URL: `https://<deployment-id>-storefront-worker.<sub>.workers.dev`
+
+Talking point:
+
+These are not two different environments. They point at the same preview
+deployment right now. The difference is identity:
+
+- The preview URL is the stable URL you share with QA.
+- The deployment URL is the exact deployed revision.
+
+If you rerun `wrangler preview`, the preview URL should remain stable while the
+deployment URL changes.
+
+#### Step 1.3 — Compare production vs preview
+
+Action:
 
 ```bash
-# Production — v1 catalog, production prices
+export PREVIEW_URL=https://feature-v2-pricing-storefront-worker.<sub>.workers.dev
+
 curl -s $STOREFRONT_URL/products | jq '{version, environment, featured_collection}'
 
-# Preview — same code, isolated KV + D1, staging prices and stock counts
-curl -s https://feature-v2-pricing.storefront-worker.<sub>.workers.dev/products \
+curl -s $PREVIEW_URL/products \
   | jq '{version, environment, featured_collection}'
 ```
 
-**What to point out:** `"environment": "preview"`, the lower prices, and
-`"stock": 9999` confirm the preview is bound to entirely separate KV and D1
-instances. Any mutations to the preview data are completely isolated from
-production.
+Talking points:
+
+- Production should show `"environment": "production"`.
+- Preview should show `"environment": "preview"`.
+- Preview data should have the lower prices and different stock values.
+- This proves the preview is using the `previews` bindings, not the production
+  ones.
+
+Important: the preview is a separate environment. It is not a staged
+production version.
+
+#### Step 1.4 — Show the dashboard
+
+Action:
 
 Open the dashboard Previews tab to show the binding configuration:
 ```
 https://dash.cloudflare.com/<ACCOUNT_ID>/workers/services/view/storefront-worker/production/previews
 ```
 
+Talking points:
+
+- Show the preview name in the Previews tab.
+- Show the preview KV and D1 IDs are different from production.
+- Call out that observability is separate as well.
+- This is the safe branch-testing story: same Worker code path, isolated data.
+
 ---
 
 ## Stage 2 — Manual Gradual Deployment
 
 *"How do I roll out to 10%, then 50%, then 100%?"*
+
+Important: this stage is different from Stage 1.
+
+- Stage 1 creates a preview environment with `ENVIRONMENT=preview`.
+- Stage 2 shifts traffic between production versions, so both versions still
+  run with `ENVIRONMENT=production`.
+
+#### Step 2.1 — Upload v2 without deploying it
+
+Action:
 
 ```bash
 cd packages/storefront-worker
@@ -176,12 +252,26 @@ npx wrangler versions upload \
 npx wrangler versions list
 export V1_VERSION_ID=<v1-id>
 export V2_VERSION_ID=<v2-id>
+```
+
+Talking point:
+
+`versions upload` creates an immutable production version, but no traffic has
+shifted yet.
+
+#### Step 2.2 — Shift 10% of production traffic
+
+Action:
+
+```bash
 
 # Deploy at 10% — production traffic is still 90% v1
 npx wrangler versions deploy "$V2_VERSION_ID@10%" "$V1_VERSION_ID@90%"
 ```
 
-Watch the split in real time:
+#### Step 2.3 — Watch the split in real time
+
+Action:
 
 ```bash
 for i in {1..20}; do
@@ -192,23 +282,36 @@ done
 #   v2  End-of-Season Sale   ← ~2 in every 20
 ```
 
-Step through to 100%:
+Talking points:
+
+- Both responses are still production traffic.
+- `version` changes between `v1` and `v2`.
+- `environment` should stay `production` for both.
+
+#### Step 2.4 — Step through to 100%
+
+Action:
 
 ```bash
 npx wrangler versions deploy "$V2_VERSION_ID@50%" "$V1_VERSION_ID@50%"
 npx wrangler versions deploy "$V2_VERSION_ID@100%"
 ```
 
-Instant rollback:
+#### Step 2.5 — Roll back instantly
+
+Action:
 
 ```bash
 npx wrangler rollback   # interactive — select v1 from the list
 curl -s $STOREFRONT_URL/products | jq '.version'  # → "v1"
 ```
 
-**What to point out:** Rollback is not a redeployment — the platform changes
-which version pointer is active. It propagates globally in seconds. Any of
-the last 100 versions is available.
+Talking points:
+
+- Rollback is not a redeploy.
+- Cloudflare flips the active version pointer.
+- It propagates globally in seconds.
+- Any of the last 100 versions is available.
 
 ---
 
@@ -217,6 +320,8 @@ the last 100 versions is available.
 *"Can the system detect a regression and roll back without a human?"*
 
 ### 3a — Set up a broken version
+
+Action:
 
 In `packages/storefront-worker/src/index.ts`, change `shouldInjectFault` to
 return `true`, then upload:
@@ -232,6 +337,11 @@ export V2_BROKEN_ID=<version-id-from-output>
 Revert `shouldInjectFault` back to `return false` afterwards — the broken
 version is now captured as an immutable upload.
 
+Talking point:
+
+The broken version exists as a real uploaded Worker version even after the code
+is reverted locally.
+
 ### 3b — Start the load generator
 
 Open a second terminal and keep it running throughout the demo:
@@ -243,7 +353,14 @@ while true; do
 done
 ```
 
+Talking point:
+
+This generates steady traffic so the health-check step has real responses to
+measure.
+
 ### 3c — Trigger the Rollout Workflow
+
+Action:
 
 ```bash
 curl -s -X POST $WORKFLOW_URL/trigger \
@@ -259,7 +376,14 @@ curl -s -X POST $WORKFLOW_URL/trigger \
 
 Copy the `dashboardUrl` from the response and open it in a browser.
 
+Talking point:
+
+The Workflow now owns the rollout. Your terminal can disappear and the rollout
+continues from Cloudflare's side.
+
 ### 3d — Watch it roll back
+
+Talking points:
 
 The Workflow dashboard shows steps completing in real time:
 
@@ -280,7 +404,14 @@ Confirm production is back on v1:
 curl -s $STOREFRONT_URL/products | jq '.version'  # → "v1"
 ```
 
+Talking point:
+
+This is the full closed loop: deploy, observe, detect regression, and roll back
+without a human pushing a button.
+
 ### 3e — Successful rollout
+
+Action:
 
 Repeat with the healthy v2:
 
@@ -297,6 +428,11 @@ curl -s -X POST $WORKFLOW_URL/trigger \
 ```
 
 All steps pass. Final state: `storefront-worker` fully deployed at v2@100%.
+
+Talking point:
+
+The same durable control plane handles both the failed rollout and the healthy
+rollout.
 
 ---
 

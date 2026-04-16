@@ -11,7 +11,7 @@ export function getWranglerInvocation() {
 }
 
 // Resets all real resource IDs in wrangler.jsonc back to placeholder tokens.
-// Called by teardown.mjs after deleting cloud resources.
+// Called by teardown.mjs, and by setup.mjs before patching so reruns stay clean.
 export function resetWrangler(wranglerJsoncPath) {
   let content = readFileSync(wranglerJsoncPath, "utf8");
   let kvCount = 0;
@@ -20,7 +20,7 @@ export function resetWrangler(wranglerJsoncPath) {
   content = content.replace(/"id":\s*"([0-9a-f]{32})"/g, () =>
     kvCount++ === 0
       ? `"id": "<PROD_KV_NAMESPACE_ID>"`
-      : `"id": "<PREVIEW_KV_NAMESPACE_ID>"`
+      : `"id": "<PREVIEW_KV_NAMESPACE_ID>"`,
   );
 
   content = content.replace(
@@ -28,7 +28,7 @@ export function resetWrangler(wranglerJsoncPath) {
     () =>
       d1Count++ === 0
         ? `"database_id": "<PROD_D1_DATABASE_ID>"`
-        : `"database_id": "<PREVIEW_D1_DATABASE_ID>"`
+        : `"database_id": "<PREVIEW_D1_DATABASE_ID>"`,
   );
 
   writeFileSync(wranglerJsoncPath, content);
