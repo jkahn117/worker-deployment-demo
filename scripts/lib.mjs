@@ -3,6 +3,13 @@
 
 import { readFileSync, writeFileSync } from "fs";
 
+export function getWranglerInvocation() {
+  return {
+    command: process.platform === "win32" ? "pnpm.cmd" : "pnpm",
+    args: ["exec", "wrangler"],
+  };
+}
+
 // Resets all real resource IDs in wrangler.jsonc back to placeholder tokens.
 // Called by teardown.mjs after deleting cloud resources.
 export function resetWrangler(wranglerJsoncPath) {

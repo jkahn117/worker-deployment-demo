@@ -5,17 +5,18 @@ import { execFileSync } from "child_process";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import * as p from "@clack/prompts";
-import { resetWrangler } from "./lib.mjs";
+import { getWranglerInvocation, resetWrangler } from "./lib.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, "..");
 const STOREFRONT_DIR = resolve(REPO_ROOT, "packages/storefront-worker");
 const WORKFLOW_DIR = resolve(REPO_ROOT, "packages/rollout-workflow");
+const WRANGLER = getWranglerInvocation();
 
 // Passes accountId via CLOUDFLARE_ACCOUNT_ID — same pattern as setup.mjs.
 function wrangler(args, { cwd = STOREFRONT_DIR, accountId } = {}) {
   try {
-    return execFileSync("wrangler", args, {
+    return execFileSync(WRANGLER.command, [...WRANGLER.args, ...args], {
       cwd,
       encoding: "utf8",
       env: { ...process.env, ...(accountId ? { CLOUDFLARE_ACCOUNT_ID: accountId } : {}) },
@@ -29,7 +30,7 @@ function wrangler(args, { cwd = STOREFRONT_DIR, accountId } = {}) {
 
 function wranglerLive(args, { cwd = STOREFRONT_DIR, accountId } = {}) {
   try {
-    execFileSync("wrangler", args, {
+    execFileSync(WRANGLER.command, [...WRANGLER.args, ...args], {
       cwd,
       stdio: "inherit",
       env: { ...process.env, ...(accountId ? { CLOUDFLARE_ACCOUNT_ID: accountId } : {}) },
@@ -66,7 +67,7 @@ async function main() {
   // ── Auth check ─────────────────────────────────────────────────────────
   let whoami;
   try {
-    whoami = JSON.parse(execFileSync("wrangler", ["whoami", "--json"], {
+    whoami = JSON.parse(execFileSync(WRANGLER.command, [...WRANGLER.args, "whoami", "--json"], {
       cwd: REPO_ROOT,
       encoding: "utf8",
       env: process.env,

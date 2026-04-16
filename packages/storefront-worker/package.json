@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "typescript": "^5.9.3",
-    "wrangler": "https://pkg.pr.new/wrangler@13375"
+    "wrangler": "^4.83.0"
   },
   "dependencies": {
     "hono": "^4.12.11",
