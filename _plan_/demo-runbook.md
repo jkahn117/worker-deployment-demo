@@ -15,35 +15,25 @@ https://dash.cloudflare.com/?devPanel=worker-previews
 ```
 Confirm the Previews tab appears in the storefront Worker's dashboard page.
 
-### 2. Install prerelease Wrangler (storefront-worker only)
+### 2. Install dependencies
 
-The prerelease is installed locally inside `storefront-worker/` only. It does
-not replace or affect any globally installed wrangler, and `rollout-workflow/`
-continues to use a standard wrangler install.
+Use the repo-local Wrangler installed by `pnpm`.
 
 ```bash
-cd storefront-worker
-npm i https://pkg.pr.new/wrangler@12983
+pnpm install
 ```
 
-`npx wrangler` inside `storefront-worker/` will resolve the local prerelease
-from `node_modules/.bin/wrangler` ahead of any global install. All other
-directories are unaffected.
+`npx wrangler` inside `storefront-worker/` will resolve the local workspace
+install from `node_modules/.bin/wrangler` ahead of any global install.
 
-Verify the prerelease is active within this directory:
+Verify Wrangler is active within this directory:
 ```bash
+cd storefront-worker
 npx wrangler --version
-# Should show a 4.x prerelease build
 
 # Confirm wrangler preview command is available
 npx wrangler preview --help
 ```
-
-> **Before the demo:** check if PR #12983 has merged into cloudflare/workers-sdk.
-> If it has, replace `npm i https://pkg.pr.new/wrangler@12983` with
-> `npm i wrangler@latest` and remove the local override — the standard release
-> will include `wrangler preview`.
-> https://github.com/cloudflare/workers-sdk/pull/12983
 
 ### 3. Create KV namespaces
 

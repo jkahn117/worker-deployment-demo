@@ -335,22 +335,15 @@ change and the data change land together in production.
 
 ## Wrangler Preview Note
 
-`wrangler preview` requires the prerelease build from PR #12983 (not yet merged
-to `cloudflare:main` as of 2026-04-06). Install it locally inside this package
-only — no global wrangler is affected:
+`wrangler preview` is available in stable Wrangler. Install dependencies at the
+repo root and use the workspace-local Wrangler binary:
 
 ```bash
-# Inside storefront-worker/ only
-npm i https://pkg.pr.new/wrangler@12983
+pnpm install
 ```
 
 `npx wrangler` resolves `node_modules/.bin/wrangler` before any global install,
-so the prerelease is used automatically within this directory. The
-`rollout-workflow/` package uses standard wrangler and is unaffected.
-
-Check https://github.com/cloudflare/workers-sdk/pull/12983 before the demo —
-if the PR has merged, replace with `npm i wrangler@latest` and the local
-override is no longer needed.
+so the repo-local Wrangler is used automatically within this directory.
 
 ---
 

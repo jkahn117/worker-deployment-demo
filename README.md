@@ -52,17 +52,12 @@ pnpm install
 
 ### Worker Previews (Stage 1 only)
 
-`wrangler preview` is not yet in the stable Wrangler release. Install the
-prerelease **inside `packages/storefront-worker/` only** — your global
-Wrangler is unaffected:
+`wrangler preview` is available in the stable Wrangler release already
+installed by this repo.
 
 ```bash
-cd packages/storefront-worker
-npm i https://pkg.pr.new/wrangler@12983
+pnpm install
 ```
-
-Check [PR #12983](https://github.com/cloudflare/workers-sdk/pull/12983) —
-if it has merged, use `npm i wrangler@latest` instead.
 
 ---
 
@@ -129,11 +124,8 @@ localStorage.setItem("devPanel", "true");
 ```
 Reload, click the ⚙️ gear icon bottom-left, search `worker-previews`, set to `true`.
 
-**Wrangler with `preview` command:** `wrangler preview` ships in wrangler
-4.82.0 ([PR #12983](https://github.com/cloudflare/workers-sdk/pull/12983)),
-currently pending release via [PR #13375](https://github.com/cloudflare/workers-sdk/pull/13375).
-It is already installed as a prerelease in `packages/storefront-worker/` via
-`pnpm install`. Once PR #13375 merges, switch to `npm i wrangler@latest`.
+**Wrangler with `preview` command:** `wrangler preview` is available in the
+stable Wrangler release installed by `pnpm install`.
 
 ### Running the demo
 

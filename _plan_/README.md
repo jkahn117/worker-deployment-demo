@@ -121,7 +121,7 @@ Before the demo can be run, the following must be provisioned on the target acco
 | KV namespace: `storefront-preview` | Preview (staging) product data | Seeded with different values |
 | KV namespace: `rollout-config` | Rollout Workflow state/config | Created by Workflow setup |
 | Workers API token | Workflow makes API calls | Needs `Workers Scripts: Edit` + `Account Analytics: Read` |
-| Prerelease Wrangler installed | `wrangler preview` command | `npm i https://pkg.pr.new/wrangler@12983` |
+| Stable Wrangler installed | `wrangler preview` command | `pnpm install` |
 
 ---
 
@@ -130,7 +130,7 @@ Before the demo can be run, the following must be provisioned on the target acco
 | Feature | Status | Notes |
 |---|---|---|
 | Worker Previews | Internal prototype | `worker-previews` gate; no GitHub auto-integration yet |
-| `wrangler preview` command | Prerelease | Requires `pkg.pr.new/wrangler@12983` |
+| `wrangler preview` command | Stable Wrangler | Installed via `pnpm install` |
 | Branch preview URLs (GA) | GA (Jul 2025) | Fallback if prototype is unstable |
 | Gradual Deployments | GA | `wrangler versions deploy` |
 | `VERSION_METADATA` binding | GA | Available in all Workers |
