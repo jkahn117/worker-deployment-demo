@@ -90,12 +90,13 @@ authenticated. Verify with `pnpm exec wrangler whoami`.
 
 ### After setup
 
-Use the exact URLs printed by the setup script:
+The setup script prompts once for your `workers.dev` subdomain and then prints
+the exact export commands to copy:
 
 ```bash
-export STOREFRONT_URL=https://storefront-worker.<sub>.workers.dev
-export WORKFLOW_URL=https://rollout-workflow.<sub>.workers.dev
-export ACCOUNT_ID=<your-cloudflare-account-id>
+export STOREFRONT_URL=https://storefront-worker.jkahn-demo-2.workers.dev
+export WORKFLOW_URL=https://rollout-workflow.jkahn-demo-2.workers.dev
+export ACCOUNT_ID=e3a7330252222fac7058592f3add9100
 ```
 
 `STOREFRONT_URL` is the production service URL. The preview URLs created later

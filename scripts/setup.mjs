@@ -486,6 +486,28 @@ async function main() {
   });
   p.log.success("Secret set");
 
+  const workersSubdomain = await p.text({
+    message:
+      "workers.dev subdomain for export commands (the <sub> in https://storefront-worker.<sub>.workers.dev)",
+    placeholder: "jkahn-demo-2",
+    initialValue: accountName,
+    validate(value) {
+      if (!value || typeof value !== "string") {
+        return "Subdomain is required.";
+      }
+
+      if (!/^[a-z0-9-]+$/.test(value)) {
+        return "Use only lowercase letters, numbers, and hyphens.";
+      }
+
+      return undefined;
+    },
+  });
+  if (p.isCancel(workersSubdomain)) {
+    p.cancel("Aborted.");
+    process.exit(0);
+  }
+
   // ── Summary ────────────────────────────────────────────────────────────
   p.outro(
     "Setup complete!\n\n" +
@@ -495,8 +517,8 @@ async function main() {
       `  D1 prod:        ${d1ProdId}\n` +
       `  D1 preview:     ${d1PreviewId}\n\n` +
       "  Next steps:\n" +
-      "    export STOREFRONT_URL=https://storefront-worker.<sub>.workers.dev\n" +
-      "    export WORKFLOW_URL=https://rollout-workflow.<sub>.workers.dev\n" +
+      `    export STOREFRONT_URL=https://storefront-worker.${workersSubdomain}.workers.dev\n` +
+      `    export WORKFLOW_URL=https://rollout-workflow.${workersSubdomain}.workers.dev\n` +
       `    export ACCOUNT_ID=${accountId}`,
   );
 }
