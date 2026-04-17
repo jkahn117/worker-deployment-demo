@@ -403,11 +403,16 @@ async function main() {
   });
 
   wrangler(
-    ["kv", "key", "put", "--namespace-id", kvProdId, "products", prodProducts],
-    { accountId },
-  );
-  wrangler(
-    ["kv", "key", "put", "--namespace-id", kvProdId, "config", prodConfig],
+    [
+      "kv",
+      "key",
+      "put",
+      "--remote",
+      "--namespace-id",
+      kvProdId,
+      "products",
+      prodProducts,
+    ],
     { accountId },
   );
   wrangler(
@@ -415,6 +420,20 @@ async function main() {
       "kv",
       "key",
       "put",
+      "--remote",
+      "--namespace-id",
+      kvProdId,
+      "config",
+      prodConfig,
+    ],
+    { accountId },
+  );
+  wrangler(
+    [
+      "kv",
+      "key",
+      "put",
+      "--remote",
       "--namespace-id",
       kvPreviewId,
       "products",
@@ -427,6 +446,7 @@ async function main() {
       "kv",
       "key",
       "put",
+      "--remote",
       "--namespace-id",
       kvPreviewId,
       "config",
