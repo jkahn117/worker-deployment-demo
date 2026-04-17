@@ -18,6 +18,12 @@ export interface RolloutParams {
   // Duration to soak at each percentage step, passed directly to step.sleep().
   // Must be a WorkflowSleepDuration: e.g. "2 minutes", "15 minutes", "1 hour".
   soakDuration: WorkflowSleepDuration;
+  // Optional fast health-check URL for live demos, e.g. $STOREFRONT_URL/health.
+  // When provided, the workflow actively probes this URL instead of relying on
+  // delayed analytics data.
+  healthcheckUrl?: string;
+  // Number of probe requests to send when using healthcheckUrl.
+  healthcheckSampleCount: number;
 }
 
 // Result returned when the Workflow completes successfully.

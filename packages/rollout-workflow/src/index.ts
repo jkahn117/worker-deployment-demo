@@ -20,6 +20,9 @@ const TriggerSchema = z.object({
   errorThresholdPct: z.number().min(0).max(100).default(2.0),
   // Default to 2 minutes for demo; production use should increase this.
   soakDuration: z.string().default("2 minutes"),
+  // Optional direct health endpoint to probe for faster live-demo rollbacks.
+  healthcheckUrl: z.string().url().optional(),
+  healthcheckSampleCount: z.number().int().min(1).max(500).default(100),
 });
 
 // ---------------------------------------------------------------------------

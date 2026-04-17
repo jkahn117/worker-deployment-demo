@@ -339,7 +339,8 @@ is reverted locally.
 
 ### 3b — Start the load generator
 
-Open a second terminal and keep it running throughout the demo:
+If you are using the analytics-based check, open a second terminal and keep it
+running throughout the demo:
 
 ```bash
 while true; do
@@ -350,8 +351,11 @@ done
 
 Talking point:
 
-This generates steady traffic so the health-check step has real responses to
-measure.
+This generates steady traffic so the analytics-based health check has real
+responses to measure.
+
+For a faster live demo, skip the load generator and use `healthcheckUrl` in the
+trigger payload below.
 
 ### 3c — Trigger the Rollout Workflow
 
@@ -365,7 +369,9 @@ curl -s -X POST $WORKFLOW_URL/trigger \
     \"targetVersionId\": \"$V2_BROKEN_ID\",
     \"accountId\": \"$ACCOUNT_ID\",
     \"errorThresholdPct\": 2.0,
-    \"soakDuration\": \"2 minutes\"
+    \"soakDuration\": \"10 seconds\",
+    \"healthcheckUrl\": \"$STOREFRONT_URL/health\",
+    \"healthcheckSampleCount\": 100
   }" | jq .
 ```
 
@@ -375,6 +381,9 @@ Talking point:
 
 The Workflow now owns the rollout. Your terminal can disappear and the rollout
 continues from Cloudflare's side.
+
+For the fast demo path, the Workflow actively probes `/health` after each soak
+instead of waiting on analytics lag.
 
 ### 3d — Watch it roll back
 
@@ -418,7 +427,9 @@ curl -s -X POST $WORKFLOW_URL/trigger \
     \"targetVersionId\": \"$V2_VERSION_ID\",
     \"accountId\": \"$ACCOUNT_ID\",
     \"errorThresholdPct\": 2.0,
-    \"soakDuration\": \"2 minutes\"
+    \"soakDuration\": \"10 seconds\",
+    \"healthcheckUrl\": \"$STOREFRONT_URL/health\",
+    \"healthcheckSampleCount\": 100
   }" | jq .
 ```
 

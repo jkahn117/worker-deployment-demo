@@ -192,6 +192,39 @@ export async function checkErrorRate(
   };
 }
 
+export async function checkHttpErrorRate(
+  healthcheckUrl: string,
+  sampleCount: number,
+  errorThresholdPct: number
+): Promise<HealthCheckResult> {
+  const requests = Array.from({ length: sampleCount }, (_, index) => {
+    const url = new URL(healthcheckUrl);
+    url.searchParams.set("probe", String(index));
+    url.searchParams.set("ts", String(Date.now()));
+
+    return fetch(url, {
+      headers: {
+        "cache-control": "no-store",
+      },
+    })
+      .then((response) => response.ok)
+      .catch(() => false);
+  });
+
+  const results = await Promise.all(requests);
+  const errorCount = results.filter((ok) => !ok).length;
+  const requestCount = results.length;
+  const errorRate = requestCount === 0 ? 0 : (errorCount / requestCount) * 100;
+  const healthy = errorRate <= errorThresholdPct;
+
+  return {
+    healthy,
+    errorRate,
+    requestCount,
+    errorCount,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Soak duration parser
 // ---------------------------------------------------------------------------

@@ -4,6 +4,7 @@ import {
   type WorkflowStep,
 } from "cloudflare:workers";
 import {
+  checkHttpErrorRate,
   checkErrorRate,
   createDeployment,
   getCurrentVersionId,
@@ -34,6 +35,8 @@ export class RolloutWorkflow extends WorkflowEntrypoint<
       accountId,
       errorThresholdPct,
       soakDuration,
+      healthcheckUrl,
+      healthcheckSampleCount,
     } = event.payload;
 
     const apiToken = this.env.CLOUDFLARE_API_TOKEN;
@@ -108,14 +111,24 @@ export class RolloutWorkflow extends WorkflowEntrypoint<
               errorThresholdPct
             );
 
-            if (!health.healthy) {
+            const fastHealth = healthcheckUrl
+              ? await checkHttpErrorRate(
+                  healthcheckUrl,
+                  healthcheckSampleCount,
+                  errorThresholdPct,
+                )
+              : null;
+
+            const effectiveHealth = fastHealth ?? health;
+
+            if (!effectiveHealth.healthy) {
               throw new Error(
-                `Health check failed at ${pct}%: error rate ${health.errorRate.toFixed(1)}% exceeded threshold ${errorThresholdPct}%` +
-                  ` (${health.errorCount} errors / ${health.requestCount} requests)`
+                `Health check failed at ${pct}%: error rate ${effectiveHealth.errorRate.toFixed(1)}% exceeded threshold ${errorThresholdPct}%` +
+                  ` (${effectiveHealth.errorCount} errors / ${effectiveHealth.requestCount} requests)`
               );
             }
 
-            return health;
+            return effectiveHealth;
           }
         );
 
