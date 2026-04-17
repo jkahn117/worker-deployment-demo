@@ -30,6 +30,14 @@ function getRegion(request: Request): string {
   return cf?.region ?? "unknown";
 }
 
+function getFeaturedCollection(versionTag: string, fallback: string): string {
+  if (versionTag.startsWith("v2")) {
+    return "End-of-Season Sale";
+  }
+
+  return fallback;
+}
+
 // ---------------------------------------------------------------------------
 // Fault injection
 // Used by the v2-broken version to simulate upstream errors on ~30% of
@@ -90,7 +98,10 @@ app.get("/products", async (c) => {
       environment: env.ENVIRONMENT,
       region,
       currency: config.currency,
-      featured_collection: config.featured_collection,
+      featured_collection: getFeaturedCollection(
+        versionTag,
+        config.featured_collection,
+      ),
       products: products.map((p) => ({
         ...p,
         // null when the product exists in KV but has no D1 inventory row yet —

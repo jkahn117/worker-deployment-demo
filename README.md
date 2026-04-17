@@ -9,7 +9,7 @@ no third-party tooling required.
 Three progressive stages:
 
 1. **Worker Previews** — isolated preview environments per branch, with
-   separate KV *and* D1 instances so preview traffic never touches production
+   separate KV _and_ D1 instances so preview traffic never touches production
    data. Proven live by writing a product directly to preview KV and showing
    it appears on the preview URL but not on production.
 2. **Gradual Deployments** — step a new version from 10% → 50% → 100%
@@ -72,6 +72,7 @@ bash scripts/setup.sh
 ```
 
 The script will:
+
 1. Create KV namespaces (`storefront-prod`, `storefront-preview`)
 2. Create D1 databases (`storefront-inventory-prod`, `storefront-inventory-preview`)
 3. Apply D1 migrations and seed data to both databases
@@ -115,14 +116,16 @@ bash scripts/teardown.sh
 
 ## Stage 1 — Worker Previews
 
-*"How do I test a feature branch without touching production data?"*
+_"How do I test a feature branch without touching production data?"_
 
 ### Prerequisites for Stage 1
 
 **Worker Previews gate:** Open the dashboard and enable via browser console:
+
 ```javascript
 localStorage.setItem("devPanel", "true");
 ```
+
 Reload, click the ⚙️ gear icon bottom-left, search `worker-previews`, set to `true`.
 
 **Wrangler with `preview` command:** `wrangler preview` is available in the
@@ -205,6 +208,7 @@ production version.
 Action:
 
 Open the dashboard Previews tab to show the binding configuration:
+
 ```
 https://dash.cloudflare.com/<ACCOUNT_ID>/workers/services/view/storefront-worker/production/previews
 ```
@@ -220,7 +224,7 @@ Talking points:
 
 ## Stage 2 — Manual Gradual Deployment
 
-*"How do I roll out to 10%, then 50%, then 100%?"*
+_"How do I roll out to 10%, then 50%, then 100%?"_
 
 Important: this stage is different from Stage 1.
 
@@ -241,10 +245,8 @@ npx wrangler versions upload \
   --tag="v2" \
   --message="End-of-season sale, puffer vest added"
 
-# Capture the version IDs
+# List the version IDs
 npx wrangler versions list
-export V1_VERSION_ID=<v1-id>
-export V2_VERSION_ID=<v2-id>
 ```
 
 Talking point:
@@ -259,7 +261,7 @@ Action:
 ```bash
 
 # Deploy at 10% — production traffic is still 90% v1
-npx wrangler versions deploy "$V2_VERSION_ID@10%" "$V1_VERSION_ID@90%"
+npx wrangler versions deploy
 ```
 
 #### Step 2.3 — Watch the split in real time
@@ -286,8 +288,8 @@ Talking points:
 Action:
 
 ```bash
-npx wrangler versions deploy "$V2_VERSION_ID@50%" "$V1_VERSION_ID@50%"
-npx wrangler versions deploy "$V2_VERSION_ID@100%"
+npx wrangler versions deploy # evenly split 50:50
+npx wrangler versions deploy # move 100% to v2
 ```
 
 #### Step 2.5 — Roll back instantly
@@ -310,7 +312,7 @@ Talking points:
 
 ## Stage 3 — Automated Rollout with Auto-Rollback
 
-*"Can the system detect a regression and roll back without a human?"*
+_"Can the system detect a regression and roll back without a human?"_
 
 ### 3a — Set up a broken version
 
