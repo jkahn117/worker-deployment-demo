@@ -537,9 +537,10 @@ async function main() {
       `  D1 prod:        ${d1ProdId}\n` +
       `  D1 preview:     ${d1PreviewId}\n\n` +
       "  Next steps:\n" +
-      `    export STOREFRONT_URL=https://storefront-worker.${workersSubdomain}.workers.dev\n` +
-      `    export WORKFLOW_URL=https://rollout-workflow.${workersSubdomain}.workers.dev\n` +
-      `    export ACCOUNT_ID=${accountId}`,
+      "    export " +
+      `STOREFRONT_URL=https://storefront-worker.${workersSubdomain}.workers.dev ` +
+      `WORKFLOW_URL=https://rollout-workflow.${workersSubdomain}.workers.dev ` +
+      `ACCOUNT_ID=${accountId}`,
   );
 }
 
